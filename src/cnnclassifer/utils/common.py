@@ -13,28 +13,34 @@ import base64
 
 
 @ensure_annotations
-def read_yaml(path_to_yaml: Path) -> ConfigBox:
-    """reads yaml file and returns
-
-    Args:
-        path_to_yaml (str): path like input
-
-    Raises:
-        ValueError: if yaml file is empty
-        e: empty file
-
-    Returns:
-        ConfigBox: ConfigBox type
-    """
+def read_yaml(path_to_yaml):
     try:
-        with open(path_to_yaml) as yaml_file:
+        with open(path_to_yaml, 'r') as yaml_file:
             content = yaml.safe_load(yaml_file)
-            logger.info(f"yaml file: {path_to_yaml} loaded successfully")
-            return ConfigBox(content)
+            # Debugging: Print or log the content and its type
+            if content is None:
+                raise ValueError("YAML file is empty.")
+            if not isinstance(content, dict):
+                raise TypeError("YAML content is not a dictionary.")
+
+            logger.info(f"YAML file '{path_to_yaml}' loaded successfully.")
+            print("Loaded YAML content:", content)  # For debugging
+            print("Type of content:", type(content))  # For debugging
+
+            return ConfigBox(content)  # Attempt to convert to ConfigBox
+
+    except FileNotFoundError:
+        print(f"File not found: {path_to_yaml}")
+        raise FileNotFoundError(f"YAML file '{path_to_yaml}' not found.")
     except BoxValueError:
-        raise ValueError("yaml file is empty")
+        print("BoxValueError: Content is not compatible with ConfigBox.")
+        raise ValueError("YAML file is empty or has incompatible content for ConfigBox.")
+    except TypeError as e:
+        print(f"TypeError: {e}")
+        raise
     except Exception as e:
-        raise e
+        print(f"An error occurred while loading the YAML file: {e}")
+        raise
     
 
 
